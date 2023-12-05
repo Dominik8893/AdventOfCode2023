@@ -3,9 +3,10 @@
 
 #include <stdlib.h>
 #include <iostream>
+#include <unordered_map>
 #include <vector>
 
-const std::vector<std::string> calibration = 
+const std::vector<std::string> calibration =
 {
 "6798seven",
 "six8b32csscsdgjsevenfivedlhzhc",
@@ -1009,40 +1010,144 @@ const std::vector<std::string> calibration =
 "twotwo4seven1fqklblqbdxcmtch"
 };
 
-std::pair<int, int> findFirstAndLastNumber(const std::string& input) {
-  
-    int firstNumber = -1;
-    int lastNumber = -1;
-    int currentNumber = 0;
+std::unordered_map<std::string, int> spelledNumbers =
+{
+{"one", 1},
+{"two", 2},
+{"three", 3},
+{"four", 4},
+{"five", 5},
+{"six", 6},
+{"seven", 7},
+{"eight", 8},
+{"nine", 9}
+};
 
-    for (int i = 0; i < input.size(); i++)
-    {
-        if (std::isdigit(input[i]))
-        {
-            firstNumber = input[i]-'0';
-            break;
-        }
-    }
+const std::vector<std::string> Numbers =
+{
+{"one"},
+{"two"},
+{"three"},
+{"four"},
+{"five"},
+{"six"},
+{"seven"},
+{"eight"},
+{"nine"}
+};
 
-    for (int i = input.size()-1; i >= 0; i--)
-    {
-        if (std::isdigit(input[i]))
-        {
-            lastNumber = input[i] - '0';   
-            break;
-        }
-    }
-
-    return { firstNumber, lastNumber };
+int FindNumber(const std::string& input)
+{
+	for (int i = 0; i < 9; i++)
+	{
+		if (input.find(Numbers[i]) != std::string::npos)
+		{
+			return i+1;
+		}
+	}
+	return -1;
 }
+
+std::pair<int, int> Part1(const std::string& input) {
+
+	int firstNumber = -1;
+	int lastNumber = -1;
+	int currentNumber = 0;
+
+	for (int i = 0; i < input.size(); i++)
+	{
+		if (std::isdigit(input[i]))
+		{
+			firstNumber = input[i] - '0';
+			break;
+		}
+	}
+
+	for (int i = input.size() - 1; i >= 0; i--)
+	{
+		if (std::isdigit(input[i]))
+		{
+			lastNumber = input[i] - '0';
+			break;
+		}
+	}
+
+	return { firstNumber, lastNumber };
+}
+
+
+
+std::pair<int, int> Part2(const std::string& input) {
+
+	int firstNumber = -1;
+	int lastNumber = -1;
+
+	for (int i = 0; i < input.size(); ++i) 
+	{
+		if (std::isdigit(input[i])) 
+		{
+			firstNumber = input[i] - '0';
+			break;
+		}
+		else if (std::isalpha(input[i])) 
+		{
+			std::string spelledNumber;
+			while (i < input.size() && std::isalpha(input[i]) && firstNumber == -1)
+			{
+				spelledNumber += std::tolower(input[i]);
+				++i;
+
+				int FoundNumber = FindNumber(spelledNumber);
+				if (FoundNumber != -1)
+				{
+					firstNumber = FoundNumber;
+				}
+				
+			}
+			if (firstNumber != -1) { break; }
+			--i;
+		}
+	}
+
+	for (int i = input.size() - 1; i >= 0; --i) 
+	{
+		if (std::isdigit(input[i])) 
+		{
+			lastNumber = input[i] - '0';
+			break;
+		}
+		else if (std::isalpha(input[i])) 
+		{
+			std::string spelledNumber;
+			while (i >= 0 && std::isalpha(input[i]) && lastNumber == -1)
+			{
+				//spelledNumber += std::tolower(input[i]);
+				spelledNumber.insert(0,1,input[i]);
+				--i;
+				int FoundNumber = FindNumber(spelledNumber);
+				if (FoundNumber != -1)
+				{
+					lastNumber = FoundNumber;
+				}
+			}
+			if(lastNumber != -1){ break; }	
+			++i;
+		}
+	}
+
+	return { firstNumber, lastNumber };
+}
+
 
 int main()
 {
-    int sum = 0;
+	int sum = 0;
 
-    for (const auto& str : calibration) {
-        auto result = findFirstAndLastNumber(str);
-        sum += result.first * 10 + result.second;
-    }
-    std::cout << sum;
+	//std::cout<<FindNumber("four");
+
+	for (const auto& str : calibration) {
+		auto result = Part2(str);
+		sum += result.first * 10 + result.second;
+	}
+	std::cout << sum;
 }
