@@ -2,6 +2,7 @@
 #include <iostream>
 #include <unordered_map>
 #include <vector>
+#include <cmath>
 
 const std::vector<std::string> PlayedGames =
 {
@@ -106,15 +107,68 @@ const std::vector<std::string> PlayedGames =
 "Game 99: 12 blue, 8 green; 2 green; 3 red, 7 green, 5 blue; 1 green, 1 blue, 2 red",
 "Game 100: 4 blue, 14 red; 12 red, 1 blue; 2 red, 2 blue; 8 red; 14 red, 2 blue, 1 green; 3 blue",
 
+};
+
+
+//12 red cubes, 13 green cubes, and 14 blue
+// "Game 32: 5 blue, 4 red, 5 green; 10 red, 10 green, 5 blue; 10 red, 12 green, 6 blue; 8 red, 1 blue, 13 green; 6 green, 14 red, 2 blue",
+
+
+int FindColorAndReturnMax(const std::string& input, const std::string& WhatToSearchFor)
+{
+    int FoundIndex = 0;
+
+    int MaxFound = 0;
+
+    while (FoundIndex != -1)
+    {
+         FoundIndex = input.find(WhatToSearchFor, FoundIndex);
+
+         int i = 0;
+         int Number = 0;
+         while(FoundIndex -i -2 > 0)
+         {
+             if (std::isdigit(input[FoundIndex - i - 2]))
+             {
+                 Number += (input[FoundIndex - i - 2] - '0') * pow(10,i);
+                 ++i;
+             } 
+             else 
+             {
+                 MaxFound = Number > MaxFound ? Number : MaxFound;
+                 FoundIndex++;
+                 break;
+             }
+         }
+    }
+
+
+    return MaxFound;
 }
-
-
-//12 red cubes, 13 green cubes, and 14
 
 int main()
 {
-    for (auto& str : PlayedGames)
+
+    //Part 1
+
+    /*int IndexSum = 0;
+    for(int i=0;i<PlayedGames.size();i++)
     {
-        //str.pa
+        if (FindColorAndReturnMax(PlayedGames[i], "red") <= 12 && FindColorAndReturnMax(PlayedGames[i], "green") <= 13 && FindColorAndReturnMax(PlayedGames[i], "blue") <= 14)
+        {
+            IndexSum += i+1;
+        }
     }
+    std::cout << IndexSum;*/
+
+
+    //Part 2
+    int SquareSum = 0;
+    for(int i=0;i<PlayedGames.size();i++)
+    {
+        SquareSum += FindColorAndReturnMax(PlayedGames[i], "red") * FindColorAndReturnMax(PlayedGames[i], "green") * FindColorAndReturnMax(PlayedGames[i], "blue");      
+    }
+    std::cout << SquareSum;
+
+    return 0;
 }
