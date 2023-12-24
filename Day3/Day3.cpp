@@ -6,7 +6,7 @@
 #include <vector>
 #include <cmath>
 
-const std::vector<std::string> Engine =
+const std::vector<std::string> EngineSchematic =
 {
 ".......262....300...................507.....961..............668.....................189.906...........................624..................",
 "..148.................805..130..880*...........*684.............*......*..............*..-......%.................$........17...65....91*...",
@@ -149,18 +149,138 @@ const std::vector<std::string> Engine =
 "......85....882.80.......184$................117........................454..583......*..351...............266....................&....*....",
 ".......................................................48...........................436........275...................869............258....."
 };
-int main()
+
+//000
+//0X0
+//000 
+
+inline bool OutOfBounds(int row, int column)
 {
-    std::cout << "Hello World!\n";
+    if(row < 0 || row >= EngineSchematic[0].size())
+    {
+        return true;
+    }
+
+    if (column < 0 || column >= EngineSchematic.size())
+    {
+        return true;
+    }
+
+    return false;
 }
 
-// Run program: Ctrl + F5 or Debug > Start Without Debugging menu
-// Debug program: F5 or Debug > Start Debugging menu
+inline bool IsSymbol(int row,int column)
+{
+    if (!(EngineSchematic[row][column] == '.') && !(std::isdigit(EngineSchematic[row][column])))
+    {
+        return true;
+    }
+    return false;
+}
+inline bool IsSymbolIgnoreMinus(int row, int column)
+{
+    if (!(EngineSchematic[row][column] == '.') && !(std::isdigit(EngineSchematic[row][column])) && !(EngineSchematic[row][column] == '-'))
+    {
+        return true;
+    }
+    return false;
+}
 
-// Tips for Getting Started: 
-//   1. Use the Solution Explorer window to add/manage files
-//   2. Use the Team Explorer window to connect to source control
-//   3. Use the Output window to see build output and other messages
-//   4. Use the Error List window to view errors
-//   5. Go to Project > Add New Item to create new code files, or Project > Add Existing Item to add existing code files to the project
-//   6. In the future, to open this project again, go to File > Open > Project and select the .sln file
+inline bool CheckCharacter(int row, int column)
+{
+    if (!OutOfBounds(row, column))
+    {
+        if (IsSymbol(row, column)) { return true; }
+    }
+    return false;
+}
+
+inline bool CheckCharacterIgnoreMinus(int row, int column)
+{
+    if (!OutOfBounds(row, column))
+    {
+        if (IsSymbolIgnoreMinus(row, column)) { return true; }
+    }
+    return false;
+}
+bool IsAdjacentToSymbol(int row, int column)
+{
+    if (CheckCharacter(row - 1, column - 1)) { return true; }
+    if (CheckCharacter(row - 1, column)) { return true; }
+    if (CheckCharacter(row - 1, column + 1)) { return true; }
+
+    if (CheckCharacterIgnoreMinus(row, column - 1)) { return true; }
+    if (CheckCharacter(row, column)) { return true; }
+    if (CheckCharacter(row, column + 1)) { return true; }
+
+    if (CheckCharacter(row + 1, column - 1)) { return true; }
+    if (CheckCharacter(row + 1, column)) { return true; }
+    if (CheckCharacter(row + 1, column + 1)) { return true; }
+
+    return false;
+}
+
+int ConnectedNumber(int row, int column)
+{
+    int Number = 0;
+    int NumberPos = 0;
+    int i = 0;
+    while (std::isdigit(EngineSchematic[row][column + i]))
+    { 
+        i++;
+
+        if (OutOfBounds(row,column + i)) { break; }
+    }
+    i--;
+
+    while (std::isdigit(EngineSchematic[row][column + i]))
+    {
+        Number += (EngineSchematic[row][column + i] - '0') * pow(10, NumberPos);
+        NumberPos++;
+        i--;
+
+        if (OutOfBounds(row, column + i-1)) { break; }
+    }
+
+    if (EngineSchematic[row][column + i] == '-') { Number *= -1; }
+    
+    return Number;
+}
+
+int NumberLength(int row, int column)
+{
+    int i = 0;
+    while (std::isdigit(EngineSchematic[row][column + i]))
+    {
+        i++;
+
+        if (OutOfBounds(row, column + i)) { break; }
+    }
+    
+    return i;
+}
+
+int main()
+{
+    int Result = 0;
+    //Iterating over row
+    for (int i = 0; i < EngineSchematic.size(); i++)
+    {
+        //iterating over char
+        for (int j = 0; j < EngineSchematic[i].size(); j++)
+        {
+            if (std::isdigit(EngineSchematic[i][j]))
+            {
+                if(IsAdjacentToSymbol(i, j))
+                {
+                    std::cout << ConnectedNumber(i, j)<<"  "<<i<<","<<j<<"\n";
+                    Result += ConnectedNumber(i, j);
+                    j += NumberLength(i, j);
+                }
+            }
+        }
+    }
+
+    std::cout << Result;
+    return 0;
+}
